@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PDF Converter</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-file-pdf"></i> Image to PDF Converter</h1>
+            <p>Convert your images to PDF files instantly</p>
+        </header>
+
+        <div class="converter-card">
+            <div class="drop-zone" id="drop-zone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & Drop images here or</p>
+                <button id="select-files-btn">Select Files</button>
+                <input type="file" id="file-input" accept="image/*" multiple style="display: none;">
+                <p class="file-types">Supported formats: JPG, PNG, GIF, BMP, WEBP</p>
+            </div>
+
+            <div class="image-preview-container" id="image-preview-container">
+                <h3>Selected Images</h3>
+                <div class="image-list" id="image-list"></div>
+                <div class="action-buttons">
+                    <button id="add-more-btn"><i class="fas fa-plus"></i> Add More</button>
+                    <button id="remove-all-btn"><i class="fas fa-trash"></i> Remove All</button>
+                </div>
+            </div>
+
+            <div class="settings-container">
+                <h3>PDF Settings</h3>
+                <div class="setting">
+                    <label for="page-size">Page Size:</label>
+                    <select id="page-size">
+                        <option value="a4">A4</option>
+                        <option value="letter">Letter</option>
+                        <option value="legal">Legal</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <label for="orientation">Orientation:</label>
+                    <select id="orientation">
+                        <option value="portrait">Portrait</option>
+                        <option value="landscape">Landscape</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <label>Image Quality:</label>
+                    <div class="quality-slider">
+                        <input type="range" min="0.5" max="1" step="0.1" value="0.8" id="quality-slider">
+                        <span id="quality-value">80%</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="convert-btn" class="convert-btn" disabled>
+                <i class="fas fa-file-export"></i> Convert to PDF
+            </button>
+        </div>
+
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <p id="progress-text">Converting...</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Image to PDF Converter</p>
+        </footer>
+    </div>
+
+    <!-- External libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Main JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html> 
