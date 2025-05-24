@@ -75,13 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Add images to the list
-        imageFiles.forEach(file => addImageToList(file));
-        
-        // Show the image preview container if it's the first image
-        if (selectedImages.length > 0 && !imagePreviewContainer.style.display) {
+        // Show the image preview container with animation
+        if (!imagePreviewContainer.classList.contains('active')) {
             imagePreviewContainer.style.display = 'block';
+            // Trigger reflow
+            imagePreviewContainer.offsetHeight;
+            imagePreviewContainer.classList.add('active');
         }
+        
+        // Add images to the list with staggered animation
+        imageFiles.forEach((file, index) => {
+            setTimeout(() => addImageToList(file), index * 100);
+        });
         
         // Enable convert button if we have images
         convertBtn.disabled = selectedImages.length === 0;
@@ -96,10 +101,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const imageItem = document.createElement('div');
         imageItem.className = 'image-item';
         imageItem.id = imageId;
+        imageItem.style.opacity = '0';
+        imageItem.style.transform = 'scale(0.8)';
         
         // Create image preview
         const reader = new FileReader();
         reader.onload = (e) => {
+            // Create image wrapper
+            const imageWrapper = document.createElement('div');
+            imageWrapper.className = 'image-wrapper';
+            
             // Create image element
             const img = document.createElement('img');
             img.src = e.target.result;
@@ -111,19 +122,29 @@ document.addEventListener('DOMContentLoaded', () => {
             imageName.className = 'image-name';
             imageName.textContent = file.name;
             
-            // Create remove button
-            const removeButton = document.createElement('div');
+            // Create remove button with icon
+            const removeButton = document.createElement('button');
             removeButton.className = 'remove-image';
             removeButton.innerHTML = '<i class="fas fa-times"></i>';
-            removeButton.addEventListener('click', () => removeImage(imageId));
+            removeButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeImage(imageId);
+            });
             
-            // Append elements to image item
+            // Append elements
             imageItem.appendChild(img);
             imageItem.appendChild(imageName);
             imageItem.appendChild(removeButton);
             
-            // Add to image list
+            // Add to image list with animation
             imageList.appendChild(imageItem);
+            
+            // Trigger animation
+            setTimeout(() => {
+                imageItem.style.transition = 'all 0.3s ease-out';
+                imageItem.style.opacity = '1';
+                imageItem.style.transform = 'scale(1)';
+            }, 50);
             
             // Add to selected images array
             selectedImages.push({
@@ -139,44 +160,62 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     }
     
-    // Remove image from list
+    // Remove image with animation
     function removeImage(imageId) {
-        // Remove from DOM
         const imageElement = document.getElementById(imageId);
         if (imageElement) {
-            imageElement.remove();
-        }
-        
-        // Remove from array
-        const index = selectedImages.findIndex(img => img.id === imageId);
-        if (index !== -1) {
-            selectedImages.splice(index, 1);
-        }
-        
-        // Disable convert button if no images
-        convertBtn.disabled = selectedImages.length === 0;
-        
-        // Hide image preview container if no images
-        if (selectedImages.length === 0) {
-            imagePreviewContainer.style.display = 'none';
+            // Animate removal
+            imageElement.style.opacity = '0';
+            imageElement.style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                imageElement.remove();
+                
+                // Remove from array
+                const index = selectedImages.findIndex(img => img.id === imageId);
+                if (index !== -1) {
+                    selectedImages.splice(index, 1);
+                }
+                
+                // Disable convert button if no images
+                convertBtn.disabled = selectedImages.length === 0;
+                
+                // Hide image preview container if no images
+                if (selectedImages.length === 0) {
+                    imagePreviewContainer.classList.remove('active');
+                    setTimeout(() => {
+                        imagePreviewContainer.style.display = 'none';
+                    }, 300);
+                }
+            }, 300);
         }
     }
     
-    // Remove all images
+    // Remove all images with animation
     function removeAllImages() {
         if (selectedImages.length === 0) return;
         
-        // Clear the image list
-        imageList.innerHTML = '';
+        // Animate all images
+        const items = imageList.querySelectorAll('.image-item');
+        items.forEach((item, index) => {
+            setTimeout(() => {
+                item.style.opacity = '0';
+                item.style.transform = 'scale(0.8)';
+            }, index * 50);
+        });
         
-        // Clear the array
-        selectedImages.length = 0;
-        
-        // Disable convert button
-        convertBtn.disabled = true;
-        
-        // Hide image preview container
-        imagePreviewContainer.style.display = 'none';
+        // Clear after animations
+        setTimeout(() => {
+            imageList.innerHTML = '';
+            selectedImages.length = 0;
+            convertBtn.disabled = true;
+            
+            // Hide container with animation
+            imagePreviewContainer.classList.remove('active');
+            setTimeout(() => {
+                imagePreviewContainer.style.display = 'none';
+            }, 300);
+        }, items.length * 50 + 300);
     }
     
     // Update quality value display
@@ -287,8 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(addImageToPDF, 100);
             };
         }
-        
-        // Function to finalize and save the PDF
+          // Function to finalize and save the PDF
         function finalizePDF() {
             // Update progress
             progressBar.style.width = '100%';
@@ -301,13 +339,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Save the PDF
             pdf.save(filename);
             
-            // Hide progress after a delay
+            // Remove all images after successful PDF creation
             setTimeout(() => {
+                removeAllImages();
                 progressContainer.style.display = 'none';
-            }, 3000);
+            }, 1500);
         }
         
         // Start processing
         addImageToPDF();
     }
-}); 
+});
